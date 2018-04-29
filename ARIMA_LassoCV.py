@@ -54,10 +54,10 @@ if __name__ == '__main__':
     df['year'], df['month'] = df['time'].dt.year, df['time'].dt.month
     #print(df['time'])
     #NDC = 4 has the highest total sales
-    ndc4 = df.loc[df["NDC"]==7]
+    ndc4 = df.loc[df["NDC"]==6]
     print("NDC4: ")
     print(ndc4)
-    ndc4TotalSales = ndc4.groupby('time')['Qty_Ord_(PU)'].sum()
+    ndc4TotalSales = ndc4.groupby('time')['Qty_Ord_(EU)'].sum()
     print("NDC4 Total Sales: ")
     print(ndc4TotalSales)
     ndc4Times = ndc4.time.unique()
@@ -84,20 +84,20 @@ if __name__ == '__main__':
     
     
     
-    dftest = pd.DataFrame(index=ndc4Times[0:100], data=ndc4TotalSales[0:100], columns=['sales'])
+    dftest = pd.DataFrame(index=ndc4Times[400:], data=ndc4TotalSales[400:], columns=['sales'])
     print(dftest)
     
     
     ########ARIMA#############
     
-    
+    """
     
     start = time.time()
     
-    autocorrelation_plot(df2)
+    autocorrelation_plot(dftest)
     plt.show()
     
-    model = ARIMA(df2, order=(5,1,0))
+    model = ARIMA(dftest, order=(10,1,0))
     model_fit = model.fit(disp=0)
     print(model_fit.summary())
     # plot residual errors
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     
     
     
-    X = df2.values
+    X = dftest.values
     size = int(len(X) * 0.66)
     train, test = X[0:size], X[size:len(X)]
     print("Train/test split")
@@ -128,7 +128,6 @@ if __name__ == '__main__':
         predictions.append(yhat)
         obs = test[t]
         history.append(obs)
-        history.pop(0)
         print('predicted=%f, expected=%f' % (yhat, obs))
     print("Out of FOR loop")
     error = mean_squared_error(test, predictions)
@@ -211,16 +210,16 @@ if __name__ == '__main__':
     #X_train = X_train.reshape(-1, 1)
     Y_train = Y_train.reshape(-1, 1)
     Y_test = Y_test.reshape(-1, 1)
-    
-    #print("X_train shape: ", X_train.shape)
-    #print("X_test shape: ", X_test.shape)
-    #print("Y_train shape: ", Y_train.shape)
-    #print("Y_test shape: ", Y_test.shape)
-    #print("X_train type: ", X_train.dtype)
-    #print("X_test type: ", X_test.dtype)
-    #print("Y_train type: ", Y_train.dtype)
-    #print("Y_test type: ", Y_test.dtype)
-    
+    """
+    print("X_train shape: ", X_train.shape)
+    print("X_test shape: ", X_test.shape)
+    print("Y_train shape: ", Y_train.shape)
+    print("Y_test shape: ", Y_test.shape)
+    print("X_train type: ", X_train.dtype)
+    print("X_test type: ", X_test.dtype)
+    print("Y_train type: ", Y_train.dtype)
+    print("Y_test type: ", Y_test.dtype)
+    """
     regr = LassoCV()
     regr.fit(X_train, Y_train)
     
@@ -266,4 +265,4 @@ if __name__ == '__main__':
     
     end = time.time()
     print("This took: ", end-start, " seconds")
-    """
+    
