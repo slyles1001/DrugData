@@ -78,17 +78,25 @@ if __name__ == '__main__':
     #d = {'times': ndc4Times, 'sales': ndc4TotalSales}
     df2 = pd.DataFrame(index=ndc4Times, data=ndc4TotalSales, columns=['sales'])
     print(df2)
-    
+
     df2.plot()
     plt.show()
+<<<<<<< HEAD
     
     
     
     dftest = pd.DataFrame(index=ndc4Times[400:], data=ndc4TotalSales[400:], columns=['sales'])
+=======
+
+
+
+    dftest = pd.DataFrame(index=ndc4Times[0:100], data=ndc4TotalSales[0:100], columns=['sales'])
+>>>>>>> 71c63104bb2b5229247caae349fbb7ef96f89966
     print(dftest)
-    
-    
+
+
     ########ARIMA#############
+<<<<<<< HEAD
     
     """
     
@@ -98,6 +106,17 @@ if __name__ == '__main__':
     plt.show()
     
     model = ARIMA(dftest, order=(10,1,0))
+=======
+
+
+
+    start = time.time()
+
+    autocorrelation_plot(df2)
+    plt.show()
+
+    model = ARIMA(df2, order=(5,1,0))
+>>>>>>> 71c63104bb2b5229247caae349fbb7ef96f89966
     model_fit = model.fit(disp=0)
     print(model_fit.summary())
     # plot residual errors
@@ -107,12 +126,21 @@ if __name__ == '__main__':
     residuals.plot(kind='kde')
     plt.show()
     print(residuals.describe())
+<<<<<<< HEAD
     
     
     
     
     
     X = dftest.values
+=======
+
+
+
+
+
+    X = df2.values
+>>>>>>> 71c63104bb2b5229247caae349fbb7ef96f89966
     size = int(len(X) * 0.66)
     train, test = X[0:size], X[size:len(X)]
     print("Train/test split")
@@ -136,22 +164,22 @@ if __name__ == '__main__':
     plt.plot(test)
     plt.plot(predictions, color='red')
     plt.show()
-    
+
     end = time.time()
     print("This took: ", end-start, " seconds")
-    
+
     """
     X = ndc4Times
     Y1 = ndc4TotalSales
-    
+
     start = time.time()
     #errors = []
     #J = np.arange(int(X.shape[0]/10))
-    
+
     #for j in J:
-    
-    
-    
+
+
+
     #suggested = int(X.shape[0]/10)
     #print(suggested)
     a=10
@@ -166,10 +194,10 @@ if __name__ == '__main__':
     #print(Y1)
     #print("Y: ")
     #print(Y_past)
-    
+
     #print("Y shape: ")
     #print(Y_past.shape)
-    
+
     Y_past = np.delete(Y_past, 0, 0)
     #print("Y: ")
     #print(Y_past)
@@ -177,26 +205,26 @@ if __name__ == '__main__':
     #print("New shape of Y_past: ")
     Y_past = np.transpose(Y_past)
     #print(Y_past.shape)
-    
-    
-    
-    
-    
+
+
+
+
+
     #print(X[0])
     Xts = (X - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
     #print(Xts[0])
     Xts = Xts.reshape(Xts.shape[0], 1)
     #print(Xts.shape)
-    
+
     IN = np.hstack((Xts, Y_past))
     #print("Input matrix: ")
     #print(IN)
     print("Input Shape: ")
     print(IN.shape)
-    
-    
-    
-    
+
+
+
+
     size = int(IN.shape[0]*0.66)
     #print(size)
     #X_train, X_test = Xts[0:size], Xts[size: len(Xts)]
@@ -205,11 +233,12 @@ if __name__ == '__main__':
     Y_train, Y_test = Y[0:size], Y[size: len(Y)]
     X_train_64, X_test_64 = X[0:size], X[size: len(X)]
     Y_train_64, Y_test_64 = Y[0:size], Y[size: len(Y)]
-    
-    
+
+
     #X_train = X_train.reshape(-1, 1)
     Y_train = Y_train.reshape(-1, 1)
     Y_test = Y_test.reshape(-1, 1)
+<<<<<<< HEAD
     """
     print("X_train shape: ", X_train.shape)
     print("X_test shape: ", X_test.shape)
@@ -220,9 +249,21 @@ if __name__ == '__main__':
     print("Y_train type: ", Y_train.dtype)
     print("Y_test type: ", Y_test.dtype)
     """
+=======
+
+    #print("X_train shape: ", X_train.shape)
+    #print("X_test shape: ", X_test.shape)
+    #print("Y_train shape: ", Y_train.shape)
+    #print("Y_test shape: ", Y_test.shape)
+    #print("X_train type: ", X_train.dtype)
+    #print("X_test type: ", X_test.dtype)
+    #print("Y_train type: ", Y_train.dtype)
+    #print("Y_test type: ", Y_test.dtype)
+
+>>>>>>> 71c63104bb2b5229247caae349fbb7ef96f89966
     regr = LassoCV()
     regr.fit(X_train, Y_train)
-    
+
     pred_trained = []
     pred = []
     for x1 in X_train:
@@ -235,8 +276,8 @@ if __name__ == '__main__':
          #   x = x.reshape(-1,1)
         yHat = regr.predict(x)
         pred.append(yHat)
-        
-    #X_convert = X_train.reshape(X_train.shape[0]) 
+
+    #X_convert = X_train.reshape(X_train.shape[0])
     X_convert = datetime.utcfromtimestamp(X_train[0,0])
     #X_test_64 = datetime.utcfromtimestamp(X_test)
     #Y_test_64 = datetime.utcfromtimestamp(Y_test)
@@ -245,24 +286,24 @@ if __name__ == '__main__':
     #X_test_64 = np.datetime64(X_test)
     #Y_test_64 = np.datetime64(Y_test)
     #pred_64 = np.datetime64(pred)
-    
+
     #print(X_convert)
-    
+
     plt.plot(X_train_64, Y_train, color='green')
     plt.plot(X_train_64, pred_trained, color='red')
     plt.plot(X_test_64, pred, color='orange')
     plt.plot(X_test_64, Y_test, color='blue')
     plt.show()
-    
+
     error = mean_squared_error(Y_test, pred)
     print("Error: ", error)
     #errors.append(error)
-    
-    
-                    
+
+
+
     #plt.plot(J, errors, color='red')
     #plt.show()
-    
+
     end = time.time()
     print("This took: ", end-start, " seconds")
     
