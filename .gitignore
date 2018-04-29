@@ -2,4 +2,3 @@
 *.h5
 *.mat
 read_drugs.py
-.ipynb_checkpoints/drug_analysis-checkpoint.ipynb
