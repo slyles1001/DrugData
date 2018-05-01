@@ -1,0 +1,9 @@
+
+    error = mean_squared_error(Y_test, pred2)
+    error2 = 0
+    for i in range(0, len(Y_train)):
+        if i > 0:
+            error2 = error2 + abs(Y_train[i] - Y_train[i-1])
+    error2 = error2 /(len(Y_train)-1)
+    error3 = error/error2
+    print( "Mean Absolute Scaled Error: ", error3)
