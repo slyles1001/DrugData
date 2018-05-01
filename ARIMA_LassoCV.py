@@ -97,7 +97,7 @@ if __name__ == '__main__':
     autocorrelation_plot(df2)
     plt.show()
     
-    model = ARIMA(df2, ordr=(5,1,0))
+    model = ARIMA(df2, order=(5,1,0))
     model_fit = model.fit(disp=0)
     print(model_fit.summary())
     # plot residual errors
