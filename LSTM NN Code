@@ -1,0 +1,279 @@
+def Data_shape_NN(drug, X):
+        # at this point all drugs have all data for all years, so we can generalize
+    df = pd.HDFStore("drugdata.h5")['dat']
+    ndc4 = df.loc[df["NDC"]==4]
+    ndc4TotalSales = ndc4.groupby('time')['Qty_Ord_(EU)'].sum()
+    ndc4Times = ndc4.time.unique()
+    ndc4Times = np.array(ndc4Times)
+    ndc4Times.sort()
+    ndc4TotalSales = np.array(ndc4TotalSales)
+    df2 = pd.DataFrame(index=ndc4Times, data=ndc4TotalSales, columns=['sales'])
+    dftest = pd.DataFrame(index=ndc4Times[400:], data=ndc4TotalSales[400:], columns=['sales'])
+    X = ndc4Times
+    Y1 = ndc4TotalSales
+    a=10
+    #print(a)
+    Y_past = [ Y1 ]
+    for i in range(a):
+        Yi = Y_past[len(Y_past)-1]
+        Yi = np.insert(Yi, 0, 0)
+        Y_past.append(Yi[0:len(Y1)])
+    Y_past = np.matrix(Y_past)    
+    
+    Y_past = np.delete(Y_past, 0, 0)
+    #print("Y: ")
+    #print(Y_past)
+    Y = Y1
+    #print("New shape of Y_past: ")
+    Y_past = np.transpose(Y_past)
+    #print(Y_past.shape)
+    
+
+    #print(X[0])
+    Xts = (X - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+    #print(Xts[0])
+    Xts = Xts.reshape(Xts.shape[0], 1)
+    #print(Xts.shape)
+    
+    IN = np.hstack((Xts, Y_past))
+    #print("Input matrix: ")
+    #print(IN)
+ 
+      
+    size = int(IN.shape[0]*0.66)
+    import random
+    t = 0
+    #print(size)
+    #X_train, X_test = Xts[0:size], Xts[size: len(Xts)]
+    X_train, X_test = IN[0:size,:], IN[size:IN.shape[0],:]
+    #[X_train, X_test] = np.vsplit(IN, size) ################
+    Y_train, Y_test = Y[0:size], Y[size: len(Y)]
+    X_train_64, X_test_64 = X[0:size], X[size: len(X)]
+    Y_train_64, Y_test_64 = Y[0:size], Y[size: len(Y)]
+    
+    
+    #X_train = X_train.reshape(-1, 1)
+    Y_train = Y_train.reshape(-1, 1)
+    Y_test = Y_test.reshape(-1, 1)
+    
+
+    trainsize = len(IN[size:size,:])
+    testsize = len(IN[size:IN.shape[0],:])
+    X_train = X_train.astype(float)
+    X_test = X_test.astype(float)
+    Y_train = Y_train.astype(float)
+    Y_test = Y_test.astype(float)
+    X_train = X_train.tolist()
+    X_test = X_test.tolist()
+    Y_train = Y_train.tolist()
+    Y_test = Y_test.tolist()
+    
+    weight = .9
+    #THIS SECTION CONVERTS TO THE PAST DATA
+    X_trainnew = []
+    z= [0,0,0,0,0,0,0,0,0,0,0]
+    for i in range(0, len(X_train)):
+        sublist = []
+        if i == 0:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            X_trainnew.append(sublist)
+        elif i == 1:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+      
+            X_trainnew.append(sublist)
+        elif i == 2:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+       
+            X_trainnew.append(sublist)
+        elif i == 3:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+
+            X_trainnew.append(sublist)
+        elif i == 4:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend(Y_train[i-4])
+
+            X_trainnew.append(sublist)
+            
+        elif i == 5:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend(np.multiply(Y_train[i-5], weight))
+            sublist.extend(Y_train[i-4])
+      
+            X_trainnew.append(sublist)
+        elif i == 6:
+            sublist.extend([0])
+            sublist.extend([0])
+            sublist.extend(np.multiply(Y_train[i-6], weight**2))
+            sublist.extend(np.multiply(Y_train[i-5], weight))
+            sublist.extend(Y_train[i-4])
+    
+            X_trainnew.append(sublist)
+        elif i == 7:
+            sublist.extend([0])
+            sublist.extend(np.multiply(Y_train[i-7], weight**3))
+            sublist.extend(np.multiply(Y_train[i-6], weight**2))
+            sublist.extend(np.multiply(Y_train[i-5], weight))
+            sublist.extend(Y_train[i-4])
+
+            X_trainnew.append(sublist)
+        else:
+            sublist.extend(np.multiply(Y_train[i-8], weight**4))
+            sublist.extend(np.multiply(Y_train[i-7], weight**3))
+            sublist.extend(np.multiply(Y_train[i-6], weight**2))
+            sublist.extend(np.multiply(Y_train[i-5], weight))
+            sublist.extend(Y_train[i-4])
+      
+            X_trainnew.append(sublist)
+            
+    X_testnew = []
+    for i in range(0, len(X_test)):
+        sublist = []
+        if i == 0:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-8], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-7], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-6], weight**2))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-5], weight))
+            sublist.extend(Y_train[len(Y_train)-4])
+          
+            X_testnew.append(sublist)
+        elif i == 1:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-7], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-6], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-5], weight**2))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-4], weight))
+            sublist.extend(Y_train[len(Y_train)-3])
+            
+            X_testnew.append(sublist)
+        elif i == 2:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-6], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-5], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-4], weight**2))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-3], weight))
+            sublist.extend(Y_train[len(Y_train)-2])
+
+            X_testnew.append(sublist)
+        elif i == 3:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-5], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-4], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-3], weight**2))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-2], weight))
+            sublist.extend(Y_train[len(Y_train)-1])
+            
+            X_testnew.append(sublist)
+        elif i ==4:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-4], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-3], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-2], weight**2))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-1], weight))
+            sublist.extend(Y_test[i-4])
+            
+            X_testnew.append(sublist)
+        elif i == 5:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-3], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-2], weight**3))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-1], weight**2))
+            sublist.extend(np.multiply(Y_test[i-5], weight))
+            sublist.extend(Y_test[i-4])
+           
+            X_testnew.append(sublist)
+        elif i == 6:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-2], weight**4))
+            sublist.extend(np.multiply(Y_train[len(Y_train)-1], weight**3))
+            sublist.extend(np.multiply(Y_test[i-6], weight**2))
+            sublist.extend(np.multiply(Y_test[i-5], weight))
+            sublist.extend(Y_test[i-4])
+            
+            X_testnew.append(sublist)
+        elif i == 7:
+            sublist.extend(np.multiply(Y_train[len(Y_train)-1], weight**4))
+            sublist.extend(np.multiply(Y_test[i-7], weight**3))
+            sublist.extend(np.multiply(Y_test[i-6], weight**2))
+            sublist.extend(np.multiply(Y_test[i-5], weight))
+            sublist.extend(Y_test[i-4])
+            
+            X_testnew.append(sublist)
+        else:
+            sublist.extend(np.multiply(Y_test[i-8], weight**4))
+            sublist.extend(np.multiply(Y_test[i-7], weight**3))
+            sublist.extend(np.multiply(Y_test[i-6], weight**2))
+            sublist.extend(np.multiply(Y_test[i-5], weight))
+            sublist.extend(Y_test[i-4])
+            
+            X_testnew.append(sublist)
+
+    X_trainnew = np.asarray(X_trainnew)
+    X_testnew = np.asarray(X_testnew)
+    X_train = np.asarray(X_train)
+    X_test = np.asarray(X_test)
+    Y_train = np.asarray(Y_train)
+    Y_test = np.asarray(Y_test)
+    X_trainnew = np.reshape(X_trainnew, (X_trainnew.shape[0], 1, X_trainnew.shape[1]))
+    X_testnew = np.reshape(X_testnew, (X_testnew.shape[0], 1, X_testnew.shape[1]))
+    return X_trainnew, X_testnew, Y_train, Y_test, X_train_64, X_test_64
+
+def Neural_Net(drug, X, lag_size, plots = 0):
+
+    X_train, X_test, Y_train, Y_test, X_train_64, X_test_64 = Data_shape_NN(drug, X)
+    from keras.models import Sequential
+    from keras.layers import Dense
+    from keras.layers import Activation, Dropout, BatchNormalization
+    from keras.optimizers import SGD
+    from sklearn.metrics import mean_absolute_error
+    model = Sequential()
+    model.add(LSTM(5, input_shape=(1, 5), activation = 'relu'))
+    model.add(Dense(11, activation = 'relu'))
+    model.add(Dense(1, activation = 'relu'))
+    model.compile(loss='mae', optimizer='Nadam')
+    
+    model.fit(X_train, Y_train, epochs = 1000, verbose = 0)
+    pred_trained = model.predict(X_train)
+    pred = model.predict(X_test)
+    pred_trained2 = []
+    pred2 = []
+    for val in pred_trained:
+        if val < 0:
+            val = 0
+        pred_trained2.append(val)
+    for val in pred:
+        if val < 0:
+            val = 0
+        pred2.append(val)
+    print()
+    print()
+    print("The Drug is:")
+    print(drug)
+    #plt.plot(X_train_64, Y_train, color='green')
+    #plt.plot(X_train_64, pred_trained2, color='red')
+    plt.plot(X_test_64, pred, color='orange')
+    plt.plot(X_test_64, Y_test, color='blue')
+    plt.show()
+    error2 = 0
+    for i in range(0, len(Y_test)):
+        if i > 0:
+            error2 = error2 + abs(pred[i]-Y_test[i])/((abs(pred[i]) + abs(Y_test[i]))/2)
+    error2 = error2 /(len(Y_train))
+    print( "Symmetric Mean Absolute  Error: ", error2)
+    #errors.append(error)
+    return();
